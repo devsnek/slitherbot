@@ -10,6 +10,7 @@ class Slitherbot extends EventEmitter {
   }
 
   async search(start, search) {
+    const time = Date.now();
     const toVisit = [start];
     const used = [];
     let count = [];
@@ -21,7 +22,7 @@ class Slitherbot extends EventEmitter {
         .then(r => r.text)
         .catch(r => r);
       if (search && body.toLowerCase().includes(search.toLowerCase())) {
-        return { hit: url, count, search, used, start };
+        return { hit: url, count, search, used, start, time: Date.now() - time };
       }
       const $ = cheerio.load(body);
       // this is super inefficient but i'm too lazy to make something better
@@ -41,10 +42,11 @@ class Slitherbot extends EventEmitter {
           used,
           toVisit,
           search,
+          time: Date.now() - time,
         });
       }
     }
-    return { count, search, used };
+    return { count, search, used, time: Date.now() - time };
   }
 
   crawl(start) {
