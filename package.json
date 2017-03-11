@@ -1,0 +1,13 @@
+{
+  "name": "slitherbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "node-fetcher": "^1.0.0"
+  },
+  "devDependencies": {},
+  "author": "Gus Caplan <me@gus.host>",
+  "license": "MIT"
+}
