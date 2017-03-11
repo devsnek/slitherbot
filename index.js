@@ -5,28 +5,23 @@ const version = require('./package.json').version;
 const EventEmitter = require('events');
 
 class Slitherbot extends EventEmitter {
-  constructor() {
-    super();
-    this.toVisit = [];
-    this.used = [];
-    this.count = 0;
-  }
-
   get _useragent() {
     return `slitherbot/${version} (Node.js/${process.version}, node-fetcher/${fetcher.version})`;
   }
 
   async search(start, search) {
-    this.toVisit.push(start);
-    while (this.toVisit.length) {
-      this.count++;
-      const url = this.toVisit.shift();
+    const toVisit = [start];
+    const used = [];
+    let count = [];
+    while (toVisit.length) {
+      count++;
+      const url = toVisit.shift();
       const body = await fetcher.get(url)
         .set('User-Agent', this._useragent)
         .then(r => r.text)
         .catch(r => r);
       if (search && body.toLowerCase().includes(search.toLowerCase())) {
-        return { hit: url, count: this.count, search, used: this.used };
+        return { hit: url, count, search, used };
       }
       const $ = cheerio.load(body);
       // this is super inefficient but i'm too lazy to make something better
@@ -35,19 +30,21 @@ class Slitherbot extends EventEmitter {
         .map(l => URL.parse(l.attribs.href))
         .filter(u => u.host && ['https:', 'http:'].includes(u.protocol))
         .map(u => URL.format(u))
-        .filter(l => !this.used.includes(l) && !this.toVisit.includes(l));
-      this.toVisit.push(...links);
-      this.used.push(url);
+        .filter(l => !used.includes(l) && !toVisit.includes(l));
+      toVisit.push(...links);
+      used.push(url);
       if (this.listenerCount('crawl')) {
         this.emit('crawl', {
-          count: this.count,
+          start,
+          count,
           url,
-          used: this.used,
-          toVisit: this.toVisit,
+          used,
+          toVisit: toVisit,
+          search,
         });
       }
     }
-    return { count: this.count, search, user: this.used };
+    return { count, search, used };
   }
 
   crawl(start) {
