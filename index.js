@@ -21,7 +21,7 @@ class Slitherbot extends EventEmitter {
         .then(r => r.text)
         .catch(r => r);
       if (search && body.toLowerCase().includes(search.toLowerCase())) {
-        return { hit: url, count, search, used };
+        return { hit: url, count, search, used, start };
       }
       const $ = cheerio.load(body);
       // this is super inefficient but i'm too lazy to make something better
@@ -39,7 +39,7 @@ class Slitherbot extends EventEmitter {
           count,
           url,
           used,
-          toVisit: toVisit,
+          toVisit,
           search,
         });
       }
