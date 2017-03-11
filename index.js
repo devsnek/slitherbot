@@ -17,12 +17,13 @@ class Slitherbot extends EventEmitter {
     while (toVisit.length) {
       count++;
       const url = toVisit.shift();
+      if (used.includes(url)) continue;
       const body = await fetcher.get(url)
         .set('User-Agent', this._useragent)
         .then(r => r.text)
         .catch(r => r);
       if (search && body.toLowerCase().includes(search.toLowerCase())) {
-        return { hit: url, count, search, used, start, time: Date.now() - time };
+        return { hit: url, body, count, search, used, start, time: Date.now() - time };
       }
       const $ = cheerio.load(body);
       // this is super inefficient but i'm too lazy to make something better
