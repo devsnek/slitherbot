@@ -1,4 +1,4 @@
-const fetcher = require('node-fetcher');
+const request = require('snekfetch')
 const cheerio = require('cheerio');
 const URL = require('url');
 const version = require('./package.json').version;
@@ -18,7 +18,7 @@ class Slitherbot extends EventEmitter {
       const url = toVisit.shift();
       if (used.includes(url)) continue;
       count++;
-      const body = await fetcher.get(url)
+      const body = await request.get(url)
         .set('User-Agent', this._useragent)
         .then(r => r.text)
         .catch(r => r);
